@@ -6,23 +6,21 @@ Created on Sat Apr 23 11:54:25 2022
 """
 #####################
 #CREATE API
-from flask import Flask
+from flask import Flask,current_app
 from flask import jsonify
 from flask import request
-import pandas as pd
-import json
 
-from urllib.parse import urlparse
-from urllib.parse import parse_qs
 
-from Malwhere_Predict import *
+
+from Malwhere_Predict import Malwhere_predict
 
 #Create an instance of the class
 app = Flask(__name__)
 
 #https://malwhere.herokuapp.com/api/?url=
 #@app.route('/<string:URL>/',  methods=['GET', 'POST'])
-URL = "http://127.0.0.1:5000/?url=https://malwhere.herokuapp.com/api/app.exe"
+#URL = "http://127.0.0.1:5000/?url=https://malwhere.herokuapp.com/api/app.exe"
+
 @app.route('/')
 def Malwhere_api():
     URL = request.args.get('url')
@@ -30,6 +28,9 @@ def Malwhere_api():
     return  jsonify({'prediction': prediction})
 #WARNING return type must be string, dict, tuple, Response instance, or WSGI callable
 
-app.run(debug=True,use_reloader=True,threaded=True)
-
-
+# =============================================================================
+# if __name__ == '__main__':
+#     app.run(debug=True,use_reloader=True,threaded=True)
+# 
+# =============================================================================
+app.run()

@@ -12,112 +12,117 @@ Created on Sat Apr 23 11:54:25 2022
 #user_input = "http://www.jardinerie-beloeil.be/index.php?option=com_morfeoshow&task=view&gallery=3&Itemid=100"
 
 
+import xgboost as xgb
+from xgboost import XGBClassifier
+
+import io
+import pandas as pd
+from tld import get_tld
 
 
 def Malwhere_predict(user_input):
-    import xgboost as xgb
-    from xgboost import XGBClassifier
+       
+        
+   #Load saved Model
+   model2 = xgb.XGBClassifier(n_estimators= 100)
+   model2.load_model("model_sklearn.json")
     
-    #Load saved Model
-    model2 = xgb.XGBClassifier(n_estimators= 100)
-    model2.load_model("model_sklearn.json")
+  #get the URL
+        
+   user_input = io.StringIO(user_input)
+        
+   df2 = pd.DataFrame(user_input, columns=['url']) 
+        
+      
+  #GET fetures
+   df2['use_of_ip'] = df2['url'].apply(lambda i: having_ip_address(i))
+   df2['abnormal_url'] = df2['url'].apply(lambda i: abnormal_url(i))
+   df2['count-www'] = df2['url'].apply(lambda i: i.count('www'))
+   df2['count_dir'] = df2['url'].apply(lambda i: no_of_dir(i))
+   df2['count_embed_domian'] = df2['url'].apply(lambda i: no_of_embed(i))
+   df2['short_url'] = df2['url'].apply(lambda i: shortening_service(i))
+   df2['count-https'] = df2['url'].apply(lambda i : i.count('https'))
+   df2['count-http'] = df2['url'].apply(lambda i : i.count('http'))
+   df2['http_or_https'] = df2['url'].apply(lambda i: http_or_https(i))
+   df2['count.'] = df2['url'].apply(lambda i: i.count('.'))
+   df2['count@'] = df2['url'].apply(lambda i: i.count('@'))
+   df2['count%'] = df2['url'].apply(lambda i: i.count('%'))
+   df2['count?'] = df2['url'].apply(lambda i: i.count('?'))
+   df2['count-'] = df2['url'].apply(lambda i: i.count('-'))
+   df2['count/'] = df2['url'].apply(lambda i: i.count('/'))
+   df2['count#'] = df2['url'].apply(lambda i: i.count('#'))
+   df2['count&'] = df2['url'].apply(lambda i: i.count('&'))
+   df2['count;']= df2['url'].apply(lambda i: i.count(';'))
+   df2['count_'] = df2['url'].apply(lambda i: i.count('_'))
+   df2['count='] = df2['url'].apply(lambda i: i.count('='))
+   df2['url_length'] = df2['url'].apply(lambda i: len(str(i)))
+   df2['hostname_length'] = df2['url'].apply(lambda i: len(urlparse(i).netloc))
+   df2['sus_url'] = df2['url'].apply(lambda i: suspicious_words(i))
+   df2['fd_length'] = df2['url'].apply(lambda i: fd_length(i))
+   df2['tld'] = df2['url'].apply(lambda i: get_tld(i,fail_silently=True))
+   df2['tld_length'] = df2['tld'].apply(lambda i: tld_length(i))
+   df2['path_length'] = df2['url'].apply(lambda i: path_length(i))
+   df2['path_to_urllength_ratio'] =  df2['path_length']/df2['url_length']
+   df2['count-lowercase']= df2['url'].apply(lambda i: count_lowercase(i))
+   df2['lower_to_urllength_ratio'] = df2['count-lowercase']/df2['url_length']
+   df2['count_uppercase'] =  df2['url'].apply(lambda i: count_uppercase(i))
+   df2['upper_to_urllength_ratio'] = df2['count_uppercase']/df2['url_length']
+   df2['count-digits']= df2['url'].apply(lambda i: digit_count(i))
+   df2['digit_to_urllength_ratio'] = df2['count-digits']/df2['url_length']
+   df2['count-letters']= df2['url'].apply(lambda i: letter_count(i))
+   df2['letters_to_urllength_ratio'] = df2['count-letters']/df2['url_length']
+   df2['count-specchar']= df2['url'].apply(lambda i: spechar_count(i))
+   df2['specchar_to_urllength_ratio'] = df2['count-specchar']/df2['url_length']
 
-    #get the URL
-    import io
-    user_input = io.StringIO(user_input)
-    import pandas as pd
-    df2 = pd.DataFrame(user_input, columns=['url']) 
     
-
-    #GET fetures
-    df2['use_of_ip'] = df2['url'].apply(lambda i: having_ip_address(i))
-    df2['abnormal_url'] = df2['url'].apply(lambda i: abnormal_url(i))
-    df2['count-www'] = df2['url'].apply(lambda i: i.count('www'))
-    df2['count_dir'] = df2['url'].apply(lambda i: no_of_dir(i))
-    df2['count_embed_domian'] = df2['url'].apply(lambda i: no_of_embed(i))
-    df2['short_url'] = df2['url'].apply(lambda i: shortening_service(i))
-    df2['count-https'] = df2['url'].apply(lambda i : i.count('https'))
-    df2['count-http'] = df2['url'].apply(lambda i : i.count('http'))
-    df2['http_or_https'] = df2['url'].apply(lambda i: http_or_https(i))
-    df2['count.'] = df2['url'].apply(lambda i: i.count('.'))
-    df2['count@'] = df2['url'].apply(lambda i: i.count('@'))
-    df2['count%'] = df2['url'].apply(lambda i: i.count('%'))
-    df2['count?'] = df2['url'].apply(lambda i: i.count('?'))
-    df2['count-'] = df2['url'].apply(lambda i: i.count('-'))
-    df2['count/'] = df2['url'].apply(lambda i: i.count('/'))
-    df2['count#'] = df2['url'].apply(lambda i: i.count('#'))
-    df2['count&'] = df2['url'].apply(lambda i: i.count('&'))
-    df2['count;']= df2['url'].apply(lambda i: i.count(';'))
-    df2['count_'] = df2['url'].apply(lambda i: i.count('_'))
-    df2['count='] = df2['url'].apply(lambda i: i.count('='))
-    df2['url_length'] = df2['url'].apply(lambda i: len(str(i)))
-    df2['hostname_length'] = df2['url'].apply(lambda i: len(urlparse(i).netloc))
-    df2['sus_url'] = df2['url'].apply(lambda i: suspicious_words(i))
-    df2['fd_length'] = df2['url'].apply(lambda i: fd_length(i))
-    df2['tld'] = df2['url'].apply(lambda i: get_tld(i,fail_silently=True))
-    df2['tld_length'] = df2['tld'].apply(lambda i: tld_length(i))
-    df2['path_length'] = df2['url'].apply(lambda i: path_length(i))
-    df2['path_to_urllength_ratio'] =  df2['path_length']/df2['url_length']
-    df2['count-lowercase']= df2['url'].apply(lambda i: count_lowercase(i))
-    df2['lower_to_urllength_ratio'] = df2['count-lowercase']/df2['url_length']
-    df2['count_uppercase'] =  df2['url'].apply(lambda i: count_uppercase(i))
-    df2['upper_to_urllength_ratio'] = df2['count_uppercase']/df2['url_length']
-    df2['count-digits']= df2['url'].apply(lambda i: digit_count(i))
-    df2['digit_to_urllength_ratio'] = df2['count-digits']/df2['url_length']
-    df2['count-letters']= df2['url'].apply(lambda i: letter_count(i))
-    df2['letters_to_urllength_ratio'] = df2['count-letters']/df2['url_length']
-    df2['count-specchar']= df2['url'].apply(lambda i: spechar_count(i))
-    df2['specchar_to_urllength_ratio'] = df2['count-specchar']/df2['url_length']
-
-
-    df2 = df2.drop("tld",1)
+   df2 = df2.drop("tld",1)
     
-    #make the suitable dataframe for predictions.
-    X = df2[[
-            'use_of_ip',
-            'abnormal_url',
-           'count.', 
-            'count-www', 
-           'count@',
-           'count_dir', 
-           'count_embed_domian', 
-           'short_url', 
+   #make the suitable dataframe for predictions.
+   X = df2[[
+        'use_of_ip',
+        'abnormal_url',
+       'count.', 
+        'count-www', 
+       'count@',
+       'count_dir', 
+       'count_embed_domian', 
+       'short_url', 
     #       'count-https',
     #       'count-http', 
-            'count%', 'count?','count-', 
-           'count=',
-             
-            
-          'count/',
-         'count#',
-         'count&', 
-           'count;',
-          'count_', 
-            'path_length',
-            'path_to_urllength_ratio',
-            'count_uppercase',
-            'count-lowercase',
+        'count%', 'count?','count-', 
+       'count=',
+         
+        
+      'count/',
+     'count#',
+     'count&', 
+       'count;',
+      'count_', 
+        'path_length',
+        'path_to_urllength_ratio',
+        'count_uppercase',
+        'count-lowercase',
      #      'upper_to_urllength_ratio',
      #      'lower_to_urllength_ratio',
-           'letters_to_urllength_ratio',
-           'digit_to_urllength_ratio',
-           'specchar_to_urllength_ratio',
+       'letters_to_urllength_ratio',
+       'digit_to_urllength_ratio',
+       'specchar_to_urllength_ratio',
      #      'count-specchar',
-             'http_or_https',
-           
-           'url_length',
-           'hostname_length',
-             'sus_url', 
-           'fd_length', 
-          'tld_length', 
-          'count-digits',
+         'http_or_https',
+       
+       'url_length',
+       'hostname_length',
+         'sus_url', 
+       'fd_length', 
+      'tld_length', 
+      'count-digits',
     #      'count-letters'
-           ]]
-
-    y_pred = model2.predict(X)
-    prediction = str(y_pred)
-    return prediction
-
+       ]]
+    
+   y_pred = model2.predict(X)
+   prediction = str(y_pred)
+   return prediction
+    
 
 
 #GET FEATURES FUNCTIONS START (32)
@@ -126,14 +131,15 @@ def Malwhere_predict(user_input):
 #Feature #1
 import re
 #Use of IP or not in domain
-
 def having_ip_address(url):
     
-    regex1=  '(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\/)|'
-    regex2=  '([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.'
-    regex3=  '((0x[0-9a-fA-F]{1,2})\\.(0x[0-9a-fA-F]{1,2})\\.(0x[0-9a-fA-F]{1,2})\\.(0x[0-9a-fA-F]{1,2})\\/)'
-    regex4=  '(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}'
-    regexList = [regex1,regex2]
+    regex1=  '(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\/)|' #IPv4
+    regex2=  '(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.)|'#IPv4
+     #IPv6
+ #   regex3=  '((0x[0-9a-fA-F]{1,2})\\.(0x[0-9a-fA-F]{1,2})\\.(0x[0-9a-fA-F]{1,2})\\.(0x[0-9a-fA-F]{1,2})\\/)|'
+    regex3=  '(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))|'
+#   regex4=  '(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}'
+    regexList = [regex1,regex2,regex3]
     for regex in regexList:
         match = re.search(regex,url)
     
@@ -159,7 +165,7 @@ def abnormal_url(url):
         return 0
     
 
-from urllib.parse import urlparse
+
 def no_of_dir(url):
     urldir = urlparse(url).path
     return urldir.count('/')
@@ -213,9 +219,9 @@ def suspicious_words(url):
 
 
 #Importing dependencies
-from urllib.parse import urlparse
-from tld import get_tld
-import os.path
+
+
+#import os
 
 #First Directory Length
 def fd_length(url):
