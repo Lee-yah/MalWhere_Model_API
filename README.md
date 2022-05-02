@@ -1,3 +1,3 @@
 # Malwhere_Flask_API
 Malwhere model api
-This is the api for Malwehere to fetched prediction from the XGBOOST predictive model.
+This is the api created for Malwhere app, to fetched URL prediction of the inputted URL , which is thrown by the the developed predictive model (created using XGBOOST).
