@@ -1,3 +1,8 @@
 # Malwhere_Flask_API
-Malwhere model api: 
-This is the api created for Malwhere app, to fetched URL class prediction of the inputted URL , which is thrown by the the developed predictive model (created using XGBOOST).
+MalWhere model api: 
+This is the api created for Malwhere app, to fetched the URL which then be classified by a URL whether it is [0]= benign or [1]=malicious.The model is trained using a supervised machine learning approach (created using XGBOOST).
+
+RESt API:
+https://malwhere-model-api4.herokuapp.com/?url=
+
+(*insert your URL after the equal sign and press enter to test it)
