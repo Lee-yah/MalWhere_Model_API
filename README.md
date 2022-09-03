@@ -1,4 +1,4 @@
-# Malwhere_Flask_API
+# Malwhere_Model_API
 MalWhere model api: 
 This is the api created for Malwhere app, to fetched the URL which then be classified by a URL whether it is [0]= benign or [1]=malicious.The model is trained using a supervised machine learning approach (created using XGBOOST).
 
