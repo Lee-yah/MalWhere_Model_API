@@ -8,4 +8,4 @@ https://malwhere-model-api4.herokuapp.com/?url=
 (*insert your URL after the equal sign and press enter. Test it through your browser's search engine)
 
 P.S
-Classification rate is 87%. Subject for improvement.
+Classification rate is 87%. To be improved.
